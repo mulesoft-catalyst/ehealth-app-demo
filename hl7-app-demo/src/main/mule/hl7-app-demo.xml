@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:hl7="http://www.mulesoft.org/schema/mule/hl7"
+	xmlns:mllp="http://www.mulesoft.org/schema/mule/mllp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mllp http://www.mulesoft.org/schema/mule/mllp/current/mule-mllp.xsd
+http://www.mulesoft.org/schema/mule/hl7 http://www.mulesoft.org/schema/mule/hl7/current/mule-hl7.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<mllp:mllp-listener-config name="HL7_MLLP_Mllp_listener_config" doc:name="HL7 MLLP Mllp listener config" doc:id="4eb3bc32-3c94-46a2-9eca-8cf32ccb778b" >
+		<mllp:mllp-listener-connection host="localhost" port="51961" />
+	</mllp:mllp-listener-config>
+	<hl7:config name="HL7_EDI_Config" doc:name="HL7 EDI Config" doc:id="64866aac-75a6-44c6-9ecd-bf283b11e51c" eventMessageMap="hl7/v2_8_1/event-message.yaml">
+		<hl7:connection />
+		<hl7:schemas >
+			<hl7:schema value="/hl7/v2_5_1/MDM_T02.esl" />
+		</hl7:schemas>
+	</hl7:config>
+	<flow name="hl7-app-demoFlow" doc:id="f38224a3-9444-407a-93ca-6e2c7a51cb7a" >
+		<mllp:mllp-listener doc:name="Mllp listener" doc:id="4c8e8885-62b5-4c42-b75f-cc9498457391" config-ref="HL7_MLLP_Mllp_listener_config"/>
+		<hl7:read doc:name="Read" doc:id="541540c1-d6cb-4564-a49d-1fbae4653959" config-ref="HL7_EDI_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="6a5080ef-6a0b-4378-a818-6d4962ac66eb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	Delimiters: payload.Delimiters,
+	Id: payload.Id,
+	Data: {
+		MDM_T02: {
+			Id: payload.Data.MDM_T02.Id,
+			Name: payload.Data.MDM_T02.Name,
+			MSH: {
+				"MSH-01": payload.Data.MDM_T02.MSH."MSH-01",
+				"MSH-02": payload.Data.MDM_T02.MSH."MSH-02",
+				"MSH-03": payload.Data.MDM_T02.MSH."MSH-03",
+				"MSH-04": payload.Data.MDM_T02.MSH."MSH-04",
+				"MSH-05": payload.Data.MDM_T02.MSH."MSH-05",
+				"MSH-06": payload.Data.MDM_T02.MSH."MSH-06",
+				"MSH-07": payload.Data.MDM_T02.MSH."MSH-07",
+				"MSH-08": payload.Data.MDM_T02.MSH."MSH-08",
+				"MSH-09": payload.Data.MDM_T02.MSH."MSH-09",
+				"MSH-10": payload.Data.MDM_T02.MSH."MSH-10",
+				"MSH-11": payload.Data.MDM_T02.MSH."MSH-11",
+				"MSH-12": payload.Data.MDM_T02.MSH."MSH-12",
+				"MSH-13": payload.Data.MDM_T02.MSH."MSH-13",
+				"MSH-14": payload.Data.MDM_T02.MSH."MSH-14",
+				"MSH-15": payload.Data.MDM_T02.MSH."MSH-15",
+				"MSH-16": payload.Data.MDM_T02.MSH."MSH-16",
+				"MSH-17": payload.Data.MDM_T02.MSH."MSH-17",
+				"MSH-18": payload.Data.MDM_T02.MSH."MSH-18" map ( mSH18 , indexOfMSH18 ) -> mSH18,
+				"MSH-19": payload.Data.MDM_T02.MSH."MSH-19",
+				"MSH-20": payload.Data.MDM_T02.MSH."MSH-20",
+				"MSH-21": payload.Data.MDM_T02.MSH."MSH-21" map ( mSH21 , indexOfMSH21 ) -> {
+					"EI-01": mSH21."EI-01",
+					"EI-02": mSH21."EI-02",
+					"EI-03": mSH21."EI-03",
+					"EI-04": mSH21."EI-04"
+				},
+				"MSH-22": payload.Data.MDM_T02.MSH."MSH-22",
+				"MSH-23": payload.Data.MDM_T02.MSH."MSH-23",
+				"MSH-24": payload.Data.MDM_T02.MSH."MSH-24",
+				"MSH-25": payload.Data.MDM_T02.MSH."MSH-25"
+			},
+			SFT: payload.Data.MDM_T02.SFT map ( sFT , indexOfSFT ) -> {
+				"SFT-01": sFT."SFT-01",
+				"SFT-02": sFT."SFT-02",
+				"SFT-03": sFT."SFT-03",
+				"SFT-04": sFT."SFT-04",
+				"SFT-05": sFT."SFT-05",
+				"SFT-06": sFT."SFT-06"
+			},
+			UAC: payload.Data.MDM_T02.UAC,
+			EVN: payload.Data.MDM_T02.EVN,
+			PID: payload.Data.MDM_T02.PID,
+			PV1: payload.Data.MDM_T02.PV1,
+			COMMON_ORDER: payload.Data.MDM_T02.COMMON_ORDER map ( cOMMONORDER , indexOfCOMMONORDER ) -> {
+			},
+			TXA: payload.Data.MDM_T02.TXA,
+			CON: payload.Data.MDM_T02.CON map ( cON , indexOfCON ) -> {
+			},
+			OBX: payload.Data.MDM_T02.OBX map ( oBX , indexOfOBX ) -> {
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<hl7:write doc:name="Write" doc:id="81a0d28c-3ef6-449c-9099-a8d6dd35e1bd" config-ref="HL7_EDI_Config"/>
+	</flow>
+</mule>
